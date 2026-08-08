@@ -203,3 +203,8 @@ This portfolio is actively maintained. Check back for:
 ## Credits
 
 Built for marketers and advertisers who need powerful analytics and automation without the enterprise price tag.
+
+## Author
+
+**<small>Vimeshika Shri : GitHub: [@VimeshikaShri](https://github.com/VimeshikaShri)</small>**
+
