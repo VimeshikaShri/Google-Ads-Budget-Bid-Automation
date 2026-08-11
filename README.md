@@ -127,7 +127,7 @@ Automated daily performance adjustments:
 python scripts/daily_optimization.py --config config.yaml
 ```
 
-## 📈 SQL Queries
+## SQL Queries
 
 ### Campaign Performance Analysis
 Find top/bottom performing campaigns:
