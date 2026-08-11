@@ -1,52 +1,41 @@
-# AdTech Marketing Analytics Portfolio
+# Google Ads Budget & Bid Automation
 
-A comprehensive, production-ready toolkit for Google Ads and marketing analytics automation. Includes real-time dashboards, advanced SQL analytics, Python automation scripts, and budget management tools.
+I built this to solve a problem I kept running into at work: teams tracking budget pace and bid performance by hand in spreadsheets, days after the number that mattered had already moved. This is a small toolkit that includes SQL, Python, and a dashboard template for doing that monitoring automatically instead.
 
-## Project Overview
+It grew out of the BigQuery reporting work I do in my day job (I own SQL/BigQuery dashboards that give Sales and Product self-serve visibility into operational data), applied here to Google Ads spend and bid data specifically.
 
-This portfolio contains:
+**Note on data:** the queries and dashboard run against a synthetic sample dataset (`sample_metrics.csv`), not live client data, this is a demonstration of the approach and the code, not a production deployment.
 
-- **Interactive Dashboards**: Looker Studio templates for budget pacing, campaign performance, and ROI analysis
-- **SQL Analytics**: 50+ BigQuery queries for campaign analysis, attribution modeling, and forecasting
-- **Python Automation**: Scripts for bid optimization, budget monitoring, and daily performance adjustments
-- **Complete Documentation**: Setup guides, API references, and troubleshooting
+## What's in here
 
-## Key Features
+- **`comprehensive_marketing_analytics.sql`**: BigQuery queries for campaign performance, multi-touch attribution, and budget forecasting against a standard `campaign_metrics` / `daily_metrics` schema.
+- **`automated_bidding_strategy.py`**: Adjusts bids based on ROAS targets and pauses underperforming campaigns; supports a `--dry-run` flag so you can see what it *would* do before it does it.
+- **`budget_monitor.py`** — checks spend pace against allocated budget on an interval and posts alerts to Slack when a campaign is over- or under-pacing.
 
-### 1. Real-Time Budget Pacing Dashboard
-- Daily spend tracking vs. allocated budgets
-- Campaign-level pace monitoring
-- Automated alerts for overspend/underspend
-- Budget rebalancing recommendations
+## How the pieces fit together
 
-### 2. Advanced SQL Analytics
-- Campaign performance analysis
-- Multi-touch attribution modeling
-- Keyword performance benchmarking
-- Budget forecasting and trend analysis
-- Cohort retention and LTV analysis
+```
+sql_queries/        →  BigQuery views the dashboard and scripts read from
+scripts/             →  automated_bidding_strategy.py, budget_monitor.py, utils.py
+dashboards/          →  Looker Studio template + sample data
+config.example.yaml  →  copy to config.yaml and fill in your own credentials (never commit this file)
+```
 
-### 3. Automated Bidding Strategy
-- ROAS-based bid optimization
-- Daily budget reallocation
-- Performance-based campaign pausing
-- Cost-per-acquisition (CPA) targets
-- Automated reporting and alerts
+## Running it
 
-### 4. Supporting Tools
-- Budget monitoring with Slack integration
-- Daily optimization reports
-- Configuration management
-- Error handling and logging
+Requires Python 3.9+, a Google Ads developer token, and a GCP project with BigQuery enabled.
 
-## Quick Start
+```bash
+cp config.example.yaml config.yaml   # then fill in your credentials
+python scripts/automated_bidding_strategy.py --config config.yaml --dry-run
+python scripts/budget_monitor.py --config config.yaml --interval 3600
+```
 
-### Prerequisites
-- Python 3.9+
-- Google Ads API access (Developer Token)
-- Google Cloud Project with BigQuery enabled
-- OAuth 2.0 credentials
+Credentials go in `config.yaml`, which is git-ignored — use OAuth 2.0 refresh tokens rather than static API keys where possible.
 
+## Why I built it this way
+
+The bidding script defaults to `--dry-run` because the failure mode I most wanted to avoid is a script silently pausing a campaign it shouldn't have — I'd rather it tell me what it's planning first. The SQL is written against BigQuery's standard export schema rather than a custom one, so it's portable to a real Google Ads BigQuery export with minimal changes to table names.
 
 
 ## Project Structure
@@ -94,8 +83,6 @@ Real-time monitoring of daily spend vs. budget allocation:
 - Automated over/under spend alerts
 - Budget rebalancing recommendations
 - Historical spend trends
-
-**Setup**: Import `dashboards/looker_studio_template.json` into Looker Studio
 
 ### Performance Dashboard
 Campaign and keyword performance metrics:
@@ -191,14 +178,6 @@ Contributions are welcome! Please:
 2. Create a feature branch
 3. Add tests for new features
 4. Submit a pull request
-
-## Updates
-
-This portfolio is actively maintained. Check back for:
-- New dashboard templates
-- Additional SQL queries
-- Enhanced bidding strategies
-- Integration with new platforms
 
 ## Credits
 
