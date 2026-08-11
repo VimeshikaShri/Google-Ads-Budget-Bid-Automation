@@ -4,13 +4,13 @@ I built this to solve a problem I kept running into at work: teams tracking budg
 
 It grew out of the BigQuery reporting work I do in my day job (I own SQL/BigQuery dashboards that give Sales and Product self-serve visibility into operational data), applied here to Google Ads spend and bid data specifically.
 
-**Note on data:** the queries and dashboard run against a synthetic sample dataset (`sample_metrics.csv`), not live client data, this is a demonstration of the approach and the code, not a production deployment.
+**Note on data:** the queries and dashboard run against a synthetic sample dataset (`sample_metrics.csv`), not live client data. This is a demonstration of the approach and the code, not a production deployment.
 
 ## What's in here
 
 - **`comprehensive_marketing_analytics.sql`**: BigQuery queries for campaign performance, multi-touch attribution, and budget forecasting against a standard `campaign_metrics` / `daily_metrics` schema.
-- **`automated_bidding_strategy.py`**: Adjusts bids based on ROAS targets and pauses underperforming campaigns; supports a `--dry-run` flag so you can see what it *would* do before it does it.
-- **`budget_monitor.py`** — checks spend pace against allocated budget on an interval and posts alerts to Slack when a campaign is over- or under-pacing.
+- **`automated_bidding_strategy.py`**: Adjusts bids based on ROAS targets and pauses underperforming campaigns. Supports a `--dry-run` flag so you can see what it *would* do before it does it.
+- **`budget_monitor.py`**: Checks spend pace against allocated budget on an interval and posts alerts to Slack when a campaign is over- or under-pacing.
 
 ## How the pieces fit together
 
@@ -35,7 +35,7 @@ Credentials go in `config.yaml`, which is git-ignored — use OAuth 2.0 refresh 
 
 ## Why I built it this way
 
-The bidding script defaults to `--dry-run` because the failure mode I most wanted to avoid is a script silently pausing a campaign it shouldn't have — I'd rather it tell me what it's planning first. The SQL is written against BigQuery's standard export schema rather than a custom one, so it's portable to a real Google Ads BigQuery export with minimal changes to table names.
+The bidding script defaults to `--dry-run` because the failure mode I most wanted to avoid is a script silently pausing a campaign it should not have. I would rather it tell me what it is planning first. The SQL is written against BigQuery's standard export schema rather than a custom one, so it's portable to a real Google Ads BigQuery export with minimal changes to table names.
 
 
 ## Project Structure
