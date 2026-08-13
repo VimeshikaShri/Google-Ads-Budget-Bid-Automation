@@ -1,8 +1,6 @@
 # Google Ads Budget & Bid Automation: AdTech Analytics Portfolio
 
-A **BigQuery-based marketing analytics portfolio** that demonstrates how paid-media
-data can be modeled, queried, and turned into decision-ready metrics:
-**campaign performance (ROAS)**, **multi-touch attribution**, and **budget forecasting**.
+A **BigQuery-based marketing analytics portfolio** that demonstrates how paid-media data can be modeled, queried, and turned into decision-ready metrics: **Campaign performance (ROAS)**, **Multi-touch attribution**, and **Budget forecasting**.
 
 
 
@@ -14,10 +12,7 @@ Modern ad-tech teams live and die by three questions:
 2. **Which channels deserve credit for revenue?** → *Attribution Modeling*
 3. **How should we allocate next month's budget?** → *Budget Forecasting*
 
-This project answers all three using **Google BigQuery** as the data warehouse and
-**standard SQL** as the analysis layer. It is designed to be fully reproducible:
-anyone can clone the repo, run the schema files, load the sample CSVs, and get the
-same results — no billing account required.
+This project answers all three using **Google BigQuery** as the data warehouse and **standard SQL** as the analysis layer. It is designed to be fully reproducible: anyone can clone the repo, run the schema files, load the sample CSVs, and get the same results, as no billing account is required.
 
 
 
@@ -36,7 +31,7 @@ same results — no billing account required.
 
 ## Data Dictionary
 
-### `campaign_metrics` — one row per campaign
+### `campaign_metrics`: One row per campaign
 | Column | Type | Description |
 |--------|------|-------------|
 | campaign_id | STRING | Unique campaign identifier |
@@ -47,14 +42,14 @@ same results — no billing account required.
 | conversions | INT64 | Completed desired actions |
 | revenue | NUMERIC | Revenue attributed to the campaign |
 
-### `events` — one row per user touchpoint
+### `events`: One row per user touchpoint
 | Column | Type | Description |
 |--------|------|-------------|
 | user_id | STRING | Anonymous user identifier |
 | touchpoint | STRING | Marketing channel (email, social_ad, search_ad) |
 | revenue | FLOAT64 | Revenue from that user |
 
-### `daily_metrics` — one row per day
+### `daily_metrics`: One row per day
 | Column | Type | Description |
 |--------|------|-------------|
 | event_date | DATE | Calendar date |
@@ -65,7 +60,7 @@ same results — no billing account required.
 
 ## Analyses & Sample Outputs
 
-### 1. Campaign Performance (ROAS) — `sql_queries/campaign_performance.sql`
+### 1. Campaign Performance (ROAS): `sql_queries/campaign_performance.sql`
 
 Computes **Return on Ad Spend** per campaign using `SAFE_DIVIDE` (avoids divide-by-zero).
 
@@ -83,10 +78,9 @@ FROM `ad-tech-portfolio.adtech_portfolio.campaign_metrics`;
 | Video - YouTube | 11,810.15 | 15,920.00 | **1.35** |
 | Competitor - Search | 7,940.20 | 16,830.00 | **2.12** |
 
-*Insight:* **Retargeting - Shopping (8.49)** and **Brand - Search (4.54)** are the strongest
-performers; **Video - YouTube (1.35)** is closest to break-even.
+*Insight:* **Retargeting - Shopping (8.49)** and **Brand - Search (4.54)** are the strongest performers; **Video - YouTube (1.35)** is closest to break-even.
 
-### 2. Attribution Model — `sql_queries/attribution_model.sql`
+### 2. Attribution Model: `sql_queries/attribution_model.sql`
 
 Sums revenue by touchpoint using a CTE.
 
@@ -108,7 +102,7 @@ GROUP BY touchpoint;
 
 *Insight:* **social_ad** drives the most attributed revenue in this sample.
 
-### 3. Budget Forecasting — `sql_queries/budget_forecasting.sql`
+### 3. Budget Forecasting: `sql_queries/budget_forecasting.sql`
 
 Aggregates daily data to monthly spend and projected ROAS.
 
@@ -125,37 +119,39 @@ GROUP BY 1;
 | 2025-01 | 925.00 | 3.24 |
 | 2025-02 | 990.00 | 3.44 |
 
-*Insight:* Spend increased month-over-month while ROAS also improved — a healthy scaling signal.
+*Insight:* Spend increased month-over-month while ROAS also improved, a healthy scaling signal.
 
 
 
 ## Screenshots (proof of work)
 
 ### Data loading via Cloud Shell (`bq load`)
-![Cloud Shell data load](screenshots/01_cloud_shell_data_load.png)
+![Cloud Shell data load](https://github.com/VimeshikaShri/Google-Ads-Budget-Bid-Automation/blob/main/1.%20Cloud%20Shell%20Terminal.png)
+![](https://github.com/VimeshikaShri/Google-Ads-Budget-Bid-Automation/blob/main/Terminal%20part%201.png)
+![](https://github.com/VimeshikaShri/Google-Ads-Budget-Bid-Automation/blob/main/Terminal%20part%202.png)
 
 ### 1. Campaign Performance (ROAS)
-![ROAS query results](screenshots/02_roas_query_results.png)
+![ROAS query results](https://github.com/VimeshikaShri/Google-Ads-Budget-Bid-Automation/blob/main/2.%20ROAS.png)
 
 ### 2. Attribution Model
 **Creating the `events` table:**
-![Events table create](screenshots/03_events_table_create.png)
+![Events table create](https://github.com/VimeshikaShri/Google-Ads-Budget-Bid-Automation/blob/main/3.%20Created%20table%20for%20attribution%20modelling.png)
 
 **`events` table schema:**
-![Events schema](screenshots/04_events_schema.png)
+![Events schema](https://github.com/VimeshikaShri/Google-Ads-Budget-Bid-Automation/blob/main/4.%20Events%20table%20created%20(Attribution%20modelling).png)
 
 **Attributed revenue results:**
-![Attribution results](screenshots/05_attribution_results.png)
+![Attribution results](https://github.com/VimeshikaShri/Google-Ads-Budget-Bid-Automation/blob/main/5.%20Attributed%20revenue.png)
 
 ### 3. Budget Forecasting
 **Creating the `daily_metrics` table:**
-![Daily metrics create](screenshots/06_daily_metrics_create.png)
+![Daily metrics create](https://github.com/VimeshikaShri/Google-Ads-Budget-Bid-Automation/blob/main/6.%20Created%20table%20for%20Budget%20Forecasting%20(Predict%20spend%20and%20ROI).png)
 
 **`daily_metrics` table schema:**
-![Daily metrics schema](screenshots/07_daily_metrics_schema.png)
+![Daily metrics schema](https://github.com/VimeshikaShri/Google-Ads-Budget-Bid-Automation/blob/main/7.%20Events%20table%20created%20for%20Budget%20Forecasting.png)
 
 **Budget forecasting results:**
-![Budget forecasting results](screenshots/08_budget_forecasting_results.png)
+![Budget forecasting results](https://github.com/VimeshikaShri/Google-Ads-Budget-Bid-Automation/blob/main/8.%20Budget%20forecasting.png)
 
 
 
@@ -191,7 +187,7 @@ SELECT COUNT(*) FROM `ad-tech-portfolio.adtech_portfolio.events`;           -- e
 SELECT COUNT(*) FROM `ad-tech-portfolio.adtech_portfolio.daily_metrics`;    -- expect 10
 ```
 
-> **Troubleshooting — duplicate rows:** `bq load` *appends* by default. If a count is
+> **Troubleshooting duplicate rows:** `bq load` *appends* by default. If a count is
 > double what you expect, the same CSV was loaded twice. Reload with `--replace`
 > (truncates first) to get back to a clean single load:
 >
