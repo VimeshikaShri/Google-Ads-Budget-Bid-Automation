@@ -1,189 +1,230 @@
-# Google Ads Budget & Bid Automation
+# Google Ads Budget & Bid Automation: AdTech Analytics Portfolio
 
-I built this to solve a problem I kept running into at work: teams tracking budget pace and bid performance by hand in spreadsheets, days after the number that mattered had already moved. This is a small toolkit that includes SQL, Python, and a dashboard template for doing that monitoring automatically instead.
-
-It grew out of the BigQuery reporting work I do in my day job (I own SQL/BigQuery dashboards that give Sales and Product self-serve visibility into operational data), applied here to Google Ads spend and bid data specifically.
-
-**Note on data:** the queries and dashboard run against a synthetic sample dataset (`sample_metrics.csv`), not live client data. This is a demonstration of the approach and the code, not a production deployment.
-
-## What's in here
-
-- **`comprehensive_marketing_analytics.sql`**: BigQuery queries for campaign performance, multi-touch attribution, and budget forecasting against a standard `campaign_metrics` / `daily_metrics` schema.
-- **`automated_bidding_strategy.py`**: Adjusts bids based on ROAS targets and pauses underperforming campaigns. Supports a `--dry-run` flag so you can see what it *would* do before it does it.
-- **`budget_monitor.py`**: Checks spend pace against allocated budget on an interval and posts alerts to Slack when a campaign is over- or under-pacing.
-
-## How the pieces fit together
-
-```
-sql_queries/        →  BigQuery views the dashboard and scripts read from
-scripts/             →  automated_bidding_strategy.py, budget_monitor.py, utils.py
-dashboards/          →  Looker Studio template + sample data
-config.example.yaml  →  copy to config.yaml and fill in your own credentials (never commit this file)
-```
-
-## Running it
-
-Requires Python 3.9+, a Google Ads developer token, and a GCP project with BigQuery enabled.
-
-```bash
-cp config.example.yaml config.yaml   # then fill in your credentials
-python scripts/automated_bidding_strategy.py --config config.yaml --dry-run
-python scripts/budget_monitor.py --config config.yaml --interval 3600
-```
-
-Credentials go in `config.yaml`, which is git-ignored — use OAuth 2.0 refresh tokens rather than static API keys where possible.
-
-## Why I built it this way
-
-The bidding script defaults to `--dry-run` because the failure mode I most wanted to avoid is a script silently pausing a campaign it should not have. I would rather it tell me what it is planning first. The SQL is written against BigQuery's standard export schema rather than a custom one, so it's portable to a real Google Ads BigQuery export with minimal changes to table names.
+A **BigQuery-based marketing analytics portfolio** that demonstrates how paid-media
+data can be modeled, queried, and turned into decision-ready metrics:
+**campaign performance (ROAS)**, **multi-touch attribution**, and **budget forecasting**.
 
 
-## Project Structure
 
-```
-adtech-portfolio/
-├── dashboards/
-│   ├── looker_studio_template.json
-│   ├── dashboard_setup_guide.md
-│   └── sample_metrics.csv
-├── sql_queries/
-│   ├── campaign_performance.sql
-│   ├── keyword_analysis.sql
-│   ├── attribution_model.sql
-│   ├── budget_forecasting.sql
-│   ├── cohort_analysis.sql
-│   └── custom_metrics.sql
-├── scripts/
-│   ├── automated_bidding_strategy.py
-│   ├── budget_monitor.py
-│   ├── daily_optimization.py
-│   ├── utils.py
-│   └── setup.py
-├── configs/
-│   ├── google_ads_config.yaml
-│   └── bigquery_config.yaml
-├── docs/
-│   ├── INSTALLATION.md
-│   ├── USAGE.md
-│   ├── API_REFERENCE.md
-│   └── TROUBLESHOOTING.md
-├── tests/
-│   └── test_bidding_strategy.py
-├── .gitignore
-├── requirements.txt
-├── config.example.yaml
-└── LICENSE
-```
+## Overview
 
-## Dashboards
+Modern ad-tech teams live and die by three questions:
 
-### Budget Pacing Dashboard
-Real-time monitoring of daily spend vs. budget allocation:
-- Campaign-level pace tracking
-- Automated over/under spend alerts
-- Budget rebalancing recommendations
-- Historical spend trends
+1. **Which campaigns make money?** → *Campaign Performance (ROAS)*
+2. **Which channels deserve credit for revenue?** → *Attribution Modeling*
+3. **How should we allocate next month's budget?** → *Budget Forecasting*
 
-### Performance Dashboard
-Campaign and keyword performance metrics:
-- ROAS by campaign and keyword
-- Cost per conversion trends
-- Click-through rate (CTR) analysis
-- Impression share tracking
+This project answers all three using **Google BigQuery** as the data warehouse and
+**standard SQL** as the analysis layer. It is designed to be fully reproducible:
+anyone can clone the repo, run the schema files, load the sample CSVs, and get the
+same results — no billing account required.
 
-### Attribution Dashboard
-Multi-touch attribution analysis:
-- First-click, last-click, and linear attribution
-- Customer journey visualization
-- Top-performing touchpoints
-- Channel performance comparison
 
-## Python Scripts
 
-### Automated Bidding Strategy
-Runs daily to optimize bids based on ROAS targets:
+## Skills & Tools Demonstrated
 
-```bash
-python scripts/automated_bidding_strategy.py --config config.yaml --dry-run
-```
+| Area | What's shown |
+|------|--------------|
+| **Data warehousing** | BigQuery dataset & table design (DDL) |
+| **SQL analytics** | CTEs, aggregation, date truncation, safe division |
+| **Marketing metrics** | ROAS, attributed revenue, projected spend/ROI |
+| **Data loading** | `bq load` CSV ingestion (works in BigQuery sandbox) |
+| **Documentation** | Reproducible setup, data dictionary, sample outputs |
 
-Features:
-- ROAS-based bid optimization
-- Daily budget reallocation
-- Campaign performance pausing
-- CPA target enforcement
+**Stack:** Google BigQuery · Standard SQL · Cloud Shell / `bq` CLI · CSV
 
-### Budget Monitor
-Real-time budget tracking with Slack alerts:
 
-```bash
-python scripts/budget_monitor.py --config config.yaml --interval 3600
-```
+## Data Dictionary
 
-### Daily Optimization
-Automated daily performance adjustments:
+### `campaign_metrics` — one row per campaign
+| Column | Type | Description |
+|--------|------|-------------|
+| campaign_id | STRING | Unique campaign identifier |
+| campaign_name | STRING | Human-readable campaign name |
+| impressions | INT64 | Times the ad was shown |
+| clicks | INT64 | Times the ad was clicked |
+| cost | NUMERIC | Total spend on the campaign |
+| conversions | INT64 | Completed desired actions |
+| revenue | NUMERIC | Revenue attributed to the campaign |
 
-```bash
-python scripts/daily_optimization.py --config config.yaml
-```
+### `events` — one row per user touchpoint
+| Column | Type | Description |
+|--------|------|-------------|
+| user_id | STRING | Anonymous user identifier |
+| touchpoint | STRING | Marketing channel (email, social_ad, search_ad) |
+| revenue | FLOAT64 | Revenue from that user |
 
-## SQL Queries
+### `daily_metrics` — one row per day
+| Column | Type | Description |
+|--------|------|-------------|
+| event_date | DATE | Calendar date |
+| cost | FLOAT64 | Spend on that day |
+| revenue | FLOAT64 | Revenue on that day |
 
-### Campaign Performance Analysis
-Find top/bottom performing campaigns:
+
+
+## Analyses & Sample Outputs
+
+### 1. Campaign Performance (ROAS) — `sql_queries/campaign_performance.sql`
+
+Computes **Return on Ad Spend** per campaign using `SAFE_DIVIDE` (avoids divide-by-zero).
+
 ```sql
--- See sql_queries/campaign_performance.sql
-SELECT campaign_name, impressions, clicks, cost, conversions, roas
-FROM campaign_metrics
-ORDER BY roas DESC
+SELECT campaign_id, campaign_name, cost, revenue,
+       SAFE_DIVIDE(revenue, cost) AS roas
+FROM `ad-tech-portfolio.adtech_portfolio.campaign_metrics`;
 ```
 
-### Attribution Modeling
-Multi-touch attribution analysis:
+| campaign | cost | revenue | **ROAS** |
+|----------|-----:|--------:|---------:|
+| Brand - Search | 8,512.60 | 38,610.00 | **4.54** |
+| Prospecting - Display | 6,365.65 | 9,450.00 | **1.48** |
+| Retargeting - Shopping | 5,416.40 | 45,960.00 | **8.49** |
+| Video - YouTube | 11,810.15 | 15,920.00 | **1.35** |
+| Competitor - Search | 7,940.20 | 16,830.00 | **2.12** |
+
+*Insight:* **Retargeting - Shopping (8.49)** and **Brand - Search (4.54)** are the strongest
+performers; **Video - YouTube (1.35)** is closest to break-even.
+
+### 2. Attribution Model — `sql_queries/attribution_model.sql`
+
+Sums revenue by touchpoint using a CTE.
+
 ```sql
--- See sql_queries/attribution_model.sql
 WITH attribution AS (
   SELECT user_id, touchpoint, revenue
-  FROM events
+  FROM `ad-tech-portfolio.adtech_portfolio.events`
 )
-SELECT touchpoint, SUM(revenue) as attributed_revenue
+SELECT touchpoint, SUM(revenue) AS attributed_revenue
 FROM attribution
-GROUP BY touchpoint
+GROUP BY touchpoint;
 ```
 
-### Budget Forecasting
-Predict spend and ROI:
+| touchpoint | attributed_revenue |
+|------------|-------------------:|
+| social_ad | 650.00 |
+| email | 245.00 |
+| search_ad | 200.00 |
+
+*Insight:* **social_ad** drives the most attributed revenue in this sample.
+
+### 3. Budget Forecasting — `sql_queries/budget_forecasting.sql`
+
+Aggregates daily data to monthly spend and projected ROAS.
+
 ```sql
--- See sql_queries/budget_forecasting.sql
-SELECT 
-  DATE_TRUNC(event_date, MONTH) as month,
-  SUM(cost) as projected_spend,
-  SUM(revenue) / SUM(cost) as projected_roas
-FROM daily_metrics
-GROUP BY month
+SELECT DATE_TRUNC(event_date, MONTH) AS month,
+       SUM(cost) AS projected_spend,
+       SAFE_DIVIDE(SUM(revenue), SUM(cost)) AS projected_roas
+FROM `ad-tech-portfolio.adtech_portfolio.daily_metrics`
+GROUP BY 1;
 ```
 
-## Security
+| month | projected_spend | projected_roas |
+|-------|----------------:|---------------:|
+| 2025-01 | 925.00 | 3.24 |
+| 2025-02 | 990.00 | 3.44 |
 
-- Store credentials in `config.yaml` (never commit to git)
-- Use OAuth 2.0 refresh tokens for authentication
-- Rotate API keys regularly
-- Use `.gitignore` to exclude sensitive files
-- Implement rate limiting for API calls
+*Insight:* Spend increased month-over-month while ROAS also improved — a healthy scaling signal.
 
-## Contributing
 
-Contributions are welcome! Please:
-1. Fork the repository
-2. Create a feature branch
-3. Add tests for new features
-4. Submit a pull request
 
-## Credits
+## Screenshots (proof of work)
 
-Built for marketers and advertisers who need powerful analytics and automation without the enterprise price tag.
+### Data loading via Cloud Shell (`bq load`)
+![Cloud Shell data load](screenshots/01_cloud_shell_data_load.png)
+
+### 1. Campaign Performance (ROAS)
+![ROAS query results](screenshots/02_roas_query_results.png)
+
+### 2. Attribution Model
+**Creating the `events` table:**
+![Events table create](screenshots/03_events_table_create.png)
+
+**`events` table schema:**
+![Events schema](screenshots/04_events_schema.png)
+
+**Attributed revenue results:**
+![Attribution results](screenshots/05_attribution_results.png)
+
+### 3. Budget Forecasting
+**Creating the `daily_metrics` table:**
+![Daily metrics create](screenshots/06_daily_metrics_create.png)
+
+**`daily_metrics` table schema:**
+![Daily metrics schema](screenshots/07_daily_metrics_schema.png)
+
+**Budget forecasting results:**
+![Budget forecasting results](screenshots/08_budget_forecasting_results.png)
+
+
+
+## Setup & Reproduction (no billing account needed)
+
+BigQuery **sandbox mode** allows DDL (`CREATE TABLE`) and `bq load`, but blocks `INSERT` (DML). This project is built around that constraint.
+
+1. **Replace the project ID.** In every `.sql` file, swap `ad-tech-portfolio.` for your own GCP project ID.
+
+2. **Create the tables.** Open each file in `schema/` in the
+   [BigQuery console](https://console.cloud.google.com/bigquery) and click **Run**.
+
+3. **Load the sample data.** From Cloud Shell (or any terminal with `bq`):
+
+```bash
+bq load --source_format=CSV --autodetect --skip_leading_rows=1 \
+  ad-tech-portfolio:adtech_portfolio.campaign_metrics data/campaign_metrics.csv
+
+bq load --source_format=CSV --autodetect --skip_leading_rows=1 \
+  ad-tech-portfolio:adtech_portfolio.events data/events.csv
+
+bq load --source_format=CSV --autodetect --skip_leading_rows=1 \
+  ad-tech-portfolio:adtech_portfolio.daily_metrics data/daily_metrics.csv
+```
+
+4. **Run the analyses.** Open each file in `sql_queries/` and click **Run**.
+
+5. **Validate your load.** Confirm row counts match the CSVs:
+
+```sql
+SELECT COUNT(*) FROM `ad-tech-portfolio.adtech_portfolio.campaign_metrics`;  -- expect 5
+SELECT COUNT(*) FROM `ad-tech-portfolio.adtech_portfolio.events`;           -- expect 8
+SELECT COUNT(*) FROM `ad-tech-portfolio.adtech_portfolio.daily_metrics`;    -- expect 10
+```
+
+> **Troubleshooting — duplicate rows:** `bq load` *appends* by default. If a count is
+> double what you expect, the same CSV was loaded twice. Reload with `--replace`
+> (truncates first) to get back to a clean single load:
+>
+> ```bash
+> bq load --replace --source_format=CSV --autodetect --skip_leading_rows=1 \
+>   ad-tech-portfolio:adtech_portfolio.daily_metrics data/daily_metrics.csv
+> ```
+
+
+
+## Key Formulas
+
+| Metric | Formula |
+|--------|---------|
+| **ROAS** | `revenue / cost` (via `SAFE_DIVIDE`) |
+| **Attributed revenue** | `SUM(revenue)` grouped by touchpoint |
+| **Projected ROAS** | `SUM(revenue) / SUM(cost)` grouped by month |
+
+`SAFE_DIVIDE` is used everywhere a division occurs so a zero-cost row returns
+`NULL` instead of crashing the query.
+
+
+
+## Possible Extensions
+
+- Last-click / linear / time-decay attribution variants
+- ROAS thresholds with automated bid recommendations
+- Looker Studio dashboard connected to these tables
+
+
+> **Data disclaimer:** All data in this repository is **synthetic sample data** generated for demonstration purposes. It is **not** live client or company data.
+
 
 ## Author
 
 **<small>Vimeshika Shri : GitHub: [@VimeshikaShri](https://github.com/VimeshikaShri)</small>**
-
