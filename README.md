@@ -156,6 +156,7 @@ GROUP BY 1;
 
 **Budget forecasting results:**
 ![Budget forecasting results](https://github.com/VimeshikaShri/Google-Ads-Budget-Bid-Automation/blob/main/8.%20Budget%20forecasting.png)
+![](https://github.com/VimeshikaShri/Google-Ads-Budget-Bid-Automation/blob/main/9.png)
 
 
 
