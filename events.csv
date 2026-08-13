@@ -1,0 +1,9 @@
+user_id,touchpoint,revenue
+U001,email,120.00
+U002,email,80.00
+U003,social_ad,200.00
+U004,social_ad,150.00
+U005,search_ad,90.00
+U006,search_ad,110.00
+U007,email,45.00
+U008,social_ad,300.00
