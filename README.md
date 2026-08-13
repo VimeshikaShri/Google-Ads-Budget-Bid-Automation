@@ -127,7 +127,11 @@ GROUP BY 1;
 
 ### Data loading via Cloud Shell (`bq load`)
 ![Cloud Shell data load](https://github.com/VimeshikaShri/Google-Ads-Budget-Bid-Automation/blob/main/1.%20Cloud%20Shell%20Terminal.png)
+
+**Loading `events` and `daily_metrics` (full terminal session):**
 ![](https://github.com/VimeshikaShri/Google-Ads-Budget-Bid-Automation/blob/main/Terminal%20part%201.png)
+
+**Catching the duplicate-row bug and fixing it with `--replace`, then verifying `COUNT(*) = 10`:**
 ![](https://github.com/VimeshikaShri/Google-Ads-Budget-Bid-Automation/blob/main/Terminal%20part%202.png)
 
 ### 1. Campaign Performance (ROAS)
